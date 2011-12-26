@@ -277,7 +277,7 @@ listen_for /(load location|show location|show saved location|location show)/i do
 	entf = @distances['km']
 	entf = (entf * 10**3).round.to_f / 10**3
 	if entf.to_s == "0.0"
-	say "You have reached the location."
+	say "This is your location."
 	print entf
 	elsif entf > 0.0 and entf < 1.000
 	entf = (entf * 10**3).round.to_f / 10**3
