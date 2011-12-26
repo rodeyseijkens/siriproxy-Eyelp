@@ -81,7 +81,7 @@ class SiriProxy::Plugin::Eyelp < SiriProxy::Plugin
     def initialize(config)
     	#####################################
     	                                    #
-        $ywsid = "XXXXXXXXXXXXXXXXXXXXXX"   # insert your ywsid key here
+        $ywsid = "Ax87Iv7P943ixafs4b7S9g"   # insert your ywsid key here
                                             #
         #####################################
         # THIS KEY IS NEEDED - if you dont have one, request a free trial key here
@@ -119,17 +119,17 @@ listen_for /suche (.*)/i do |phrase|
 	#if phrase.match(/(ein )/)  # cleaning searchstring: eg:  ein hotel = hotel
 	phrase = phrase.insert(0, " ")
 	begin
-	phrase = phrase.sub( " ein ", " " )
-	phrase = phrase.sub( " eine ", " " )
-	phrase = phrase.sub( " einen ", " " )
-	phrase = phrase.sub( " den ", " " )
-	phrase = phrase.sub( " das ", " " )
-	phrase = phrase.sub( " die ", " " )
+	phrase = phrase.sub( " a ", " " )
+	phrase = phrase.sub( " an ", " " )
+	phrase = phrase.sub( " one ", " " )
+	phrase = phrase.sub( " the ", " " )
+	phrase = phrase.sub( " the ", " " )
+	phrase = phrase.sub( " the ", " " )
 	rescue
 	end
 	
-	if phrase.match(/( hier )/)  # catching here search: suche hier *   :Range 1 
-	ma = phrase.match(/( hier )/)
+	if phrase.match(/( here )/)  # catching here search: suche hier *   :Range 1 
+	ma = phrase.match(/( here )/)
 	part = ma.post_match.strip
 	dos = "http://api.yelp.com/business_review_search?term=" + part.to_s + "&lat=" + $mapla.to_s + "&long=" + $maplo.to_s + "&radius=1&limit=10&ywsid=" + $ywsid.to_s
 	elsif phrase.match(/( in )/) # catching city-based search:  suche * in *
@@ -138,8 +138,8 @@ listen_for /suche (.*)/i do |phrase|
 	part = ma.pre_match.strip
 	dos = "http://api.yelp.com/business_review_search?term=" + part + "&location=" + part2 + "&limit=15&ywsid=" + $ywsid.to_s
 	ss = "in"
-	elsif phrase.match(/( global )/) # catching global search: suche global *   :Range 25
-	ma = phrase.match(/( global )/)	
+	elsif phrase.match(/( anywhere )/) # catching global search: suche global *   :Range 25
+	ma = phrase.match(/( anywhere )/)	
 	part = ma.post_match.strip
 	dos = "http://api.yelp.com/business_review_search?term=" + part.to_s + "&lat=" + $mapla.to_s + "&long=" + $maplo.to_s + "&radius=25&limit=25&ywsid=" + $ywsid.to_s
 	else	# normal search: suche *   :Range 5
@@ -156,7 +156,7 @@ listen_for /suche (.*)/i do |phrase|
      	doc = ""
     end
     if doc == ""
-    	say "Bitte verwende 'suche' + suchparameter", spoken: "Fehler beim Suchen" 
+    	say "Please use 'search' + search parameters", spoken: "Failed to search"
     	request_completed
     else
 	json = doc.to_s
@@ -171,9 +171,9 @@ listen_for /suche (.*)/i do |phrase|
 	
 	if busi.empty? == true
 		if ss == "in"
-		say "Keine Einträge in Yelp für '" + part + "' in '" + part2 +"' gefunden."
+		say "No results at Yelp for '" + part + "' in '" + part2 +"' found."
 		else
-		say "Keine Einträge in Yelp für '" + part + "' gefunden."
+		say "No results at Yelp for '" + part + "' found."
 		end
 	else
 	if ss == "in" #no sorting if city-search - to get best query on top
@@ -193,9 +193,9 @@ listen_for /suche (.*)/i do |phrase|
  	end
 	
 	if x.to_s == 1	
-	say "Ich habe einen Eintrag gefunden."
+	say "I found an result."
 	else	
-	say "Ich habe " + x.to_s + " Einträge gefunden."
+	say "I have found " + x.to_s + " results."
 	end	
 	print map_snippet.items
     utterance = SiriAssistantUtteranceView.new("")
@@ -208,13 +208,13 @@ end
 end
 
 # reading from a local JSON File ---- FOR TESTING
-listen_for /(test|test eins)/i do    
+listen_for /(test|test one)/i do    
 	
 	
-	str = "Restaurant Il Sole Wiener Neustadt"
+	str = "Restaurant in Epic City"
 	
-	if str.match(/(hier )/)
-	ma = str.match(/(hier )/)
+	if str.match(/(here )/)
+	ma = str.match(/(here )/)
 	print ma.post_match
 	elsif str.match(/(in )/)
 	mb = str.match(/(in )/)	
@@ -244,7 +244,7 @@ listen_for /(test|test eins)/i do
     	map_snippet.items << SiriMapItem.new(label=data['name'], location=siri_location, detailType="FRIEND_ITEM") # BUSINESS_ITEM")
  		x += 1
  	end
-	say "Ich habe " + x.to_s + " Einträge gefunden"
+	say "I have found " + x.to_s + " results"
 	print map_snippet.items
     utterance = SiriAssistantUtteranceView.new("")
     add_views.views << utterance
@@ -255,18 +255,18 @@ end
 
 
 # safes position in a global variable
-listen_for /(speicher Position|Position speichern|Position abspeichern|Position merken)/i do   
+listen_for /(Store location|Mark location|Save location|Remember location|Pin location)/i do   
 	$ortla = $mapla
 	$ortlo = $maplo
-	say "aktueller Ort gespeichert, zum abrufen sage 'zeige Position'", spoken: "aktueller Ort gespeichert"
+	say "Current location is stored, to show say 'show location'", spoken: "current location is stored"
 	#say "lat:" + $ortla.to_s + "  long:" + $ortlo.to_s , spoken: "" 
 	request_completed 
 end
 
 # loads position from a global variable
-listen_for /(zeige Ort|zeige Position|zeige gespeicherten Ort|Position zeigen|Position anzeigen|Position zeige)/i do 
+listen_for /(load location|show location|show saved location|location show)/i do 
 	if $ortla == NIL or $ortlo == NIL
-		say "Keine Position gespeichert, verwende 'Position speichern'", spoken: "Keine Position gespeichert."
+		say "No location stored, use 'save location'", spoken: "No location saved."
 	else
 	
 	lon1 = $ortlo 
@@ -277,25 +277,25 @@ listen_for /(zeige Ort|zeige Position|zeige gespeicherten Ort|Position zeigen|Po
 	entf = @distances['km']
 	entf = (entf * 10**3).round.to_f / 10**3
 	if entf.to_s == "0.0"
-	say "Sie sind am Ziel angelangt."
+	say "You have reached the location."
 	print entf
 	elsif entf > 0.0 and entf < 1.000
 	entf = (entf * 10**3).round.to_f / 10**3
 	ent = ent.to_f
 	ent = (entf * 1000)
-	say "Entfernung zum Ziel: " + ent.to_s + " m", spoken: "Entfernung zum Ziel: " + ent.to_s + " Meter"
+	say "Distance to location: " + ent.to_s + " m", spoken: "Distance to location: " + ent.to_s + " Meter"
 	
 	else
-	say "Entfernung zum Ziel: " + entf.to_s + " km"
+	say "Distance to location: " + entf.to_s + " km"
 	end
 	
 	add_views = SiriAddViews.new
     add_views.make_root(last_ref_id)
     map_snippet = SiriMapItemSnippet.new(true)
-    siri_location = SiriLocation.new("gepeicherter Ort" , "gepeicherter Ort", "gepeicherter Ort", "gepeicherter Ort", "durt", "wo", $ortla.to_f, $ortlo.to_s) 
-    map_snippet.items << SiriMapItem.new(label="gespeicherter Ort", location=siri_location, detailType="BUSINESS_ITEM")
+    siri_location = SiriLocation.new("place to store any" , "place to store any", "place to store any", "place to store any", "time", "where", $ortla.to_f, $ortlo.to_s) 
+    map_snippet.items << SiriMapItem.new(label="place to store any", location=siri_location, detailType="BUSINESS_ITEM")
     print map_snippet.items
-    utterance = SiriAssistantUtteranceView.new("Juhu, Ich habe mich gefunden!")
+    utterance = SiriAssistantUtteranceView.new("Hooray, I've found myself!")
     #add_views.views << utterance
     add_views.views << map_snippet
     send_object add_views #send_object takes a hash or a SiriObject object
