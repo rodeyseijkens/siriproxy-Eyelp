@@ -114,7 +114,7 @@ class SiriProxy::Plugin::Eyelp < SiriProxy::Plugin
     	$mapla = object["properties"]["latitude"]
 	end 
 
-listen_for /search (.*)/i do |phrase|
+listen_for /find (.*)/i do |phrase|
 	ss = ""
 	#if phrase.match(/(ein )/)  # cleaning searchstring: eg:  ein hotel = hotel
 	phrase = phrase.insert(0, " ")
